@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>V3-Popover · 卡片旁气泡浮卡</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf8f3; --bg-alt: #f4f1e8; --surface: #ffffff; --surface-alt: #faf8f3;
+    --line: #ebe6d8; --line-soft: #f4f1e8; --line-strong: #d8d2c0;
+    --text: #1f1d17; --text-soft: #4a4637; --text-mute: #8a8572; --text-fade: #b8b1a0;
+    --accent: #5a3a1a; --accent-strong: #3d2811; --accent-soft: #e8dcc4;
+    --accent-bg: #f3ead8; --accent-ink: #ffffff;
+    --warn-500: #c98a1a; --warn-600: #a36a0e; --warn-bg: #fdf6e3;
+    --info-500: #3a6bf5; --info-bg: #e7edfb;
+    --ok-500: #2f9e6a; --ok-bg: #e3f4eb;
+    --violet-500: #6c52d9;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+  }
+  body {
+    font-family: "Inter", "Noto Sans SC", sans-serif;
+    background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+  }
+  .page { min-height: 100vh; padding: 20px 28px; }
+  .v2-header { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px; }
+  .v2-kicker { font-size: 11px; color: var(--text-fade); margin-bottom: 4px; }
+  .v2-title-row { display: flex; align-items: center; gap: 12px; }
+  .v2-title { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .v2-status-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--info-bg); color: var(--info-500); font-weight: 500; }
+  .v2-subtext { color: var(--text-mute); font-size: 12px; margin-top: 6px; }
+
+  .lane-grid { display: grid; grid-template-columns: repeat(6, minmax(150px, 1fr)); gap: 12px; position: relative; }
+  .lane-col { min-height: 480px; border-right: 1px dashed var(--line); padding: 0 4px; }
+  .lane-col:last-child { border-right: none; }
+  .lane-head { font-size: 11px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 4px 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .lane-head .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .lane-head.planning .dot { background: var(--info-500); }
+  .lane-head.executing .dot { background: var(--violet-500); }
+  .lane-head.paused .dot { background: var(--warn-500); }
+  .lane-head.finished .dot { background: var(--ok-500); }
+  .lane-head.cancelled .dot { background: var(--text-mute); }
+  .lane-head.reviewed .dot { background: var(--text-mute); }
+  .node-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 10px; box-shadow: 0 1px 0 rgba(31,29,23,0.04); cursor: pointer; position: relative; }
+  .node-card.alert { border-color: var(--warn-500); box-shadow: 0 0 0 2px rgba(201,138,26,0.18); }
+  .node-card.dim { opacity: 0.4; }
+  .type-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10.5px; font-weight: 600; margin-bottom: 4px; }
+  .type-tag.think { background: var(--info-bg); color: var(--info-500); }
+  .type-tag.act { background: var(--accent-bg); color: var(--accent); }
+  .type-tag.verify { background: var(--ok-bg); color: var(--ok-500); }
+  .nodetitle { font-size: 12.5px; color: var(--text); margin: 2px 0; }
+  .meta { font-size: 10.5px; color: var(--text-mute); }
+  .alert-pill { display: inline-block; margin-top: 4px; font-size: 10px; padding: 1px 5px; border-radius: 2px; background: var(--warn-bg); color: var(--warn-600); font-weight: 600; }
+
+  /* === Popover bubble === */
+  .popover {
+    position: absolute;
+    top: 0; left: calc(100% + 24px);
+    width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    box-shadow: 0 12px 40px -8px rgba(31,29,23,0.18), 0 4px 16px -4px rgba(31,29,23,0.08);
+    animation: bubbleIn 0.22s cubic-bezier(.32,.72,0,1);
+    z-index: 30;
+  }
+  @keyframes bubbleIn {
+    from { transform: translateX(-8px) scale(0.97); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .popover::before {
+    content: '';
+    position: absolute; left: -7px; top: 22px;
+    width: 12px; height: 12px;
+    background: var(--surface);
+    border-left: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transform: rotate(45deg);
+  }
+  .popover-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .pop-icon {
+    width: 28px; height: 28px; border-radius: var(--r-sm);
+    background: var(--warn-bg); color: var(--warn-600);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .pop-title-area { flex: 1; min-width: 0; }
+  .pop-category { font-size: 10px; font-weight: 600; color: var(--warn-600); text-transform: uppercase; letter-spacing: 0.04em; }
+  .pop-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .pop-close { background: transparent; border: none; cursor: pointer; color: var(--text-mute); font-size: 14px; padding: 4px; }
+  .pop-close:hover { color: var(--text); }
+
+  .popover-body { padding: 12px 16px 14px; }
+  .pop-reason { font-size: 13px; color: var(--text); line-height: 1.65; margin-bottom: 10px; }
+  .pop-evidence {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px;
+    color: var(--accent); cursor: pointer; margin-bottom: 10px;
+  }
+  .pop-evidence:hover { text-decoration: underline; }
+  .pop-suggestion {
+    font-size: 12.5px; color: var(--text-soft); line-height: 1.6;
+    background: var(--accent-bg); padding: 8px 10px; border-radius: var(--r-sm);
+    margin-bottom: 12px;
+    border-left: 2px solid var(--accent);
+  }
+  .pop-suggestion .sug-label { font-weight: 600; color: var(--accent); margin-right: 4px; }
+
+  .pop-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn {
+    height: 32px; border-radius: var(--r-sm); padding: 0 12px;
+    font-size: 12.5px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--surface-alt); border-color: var(--line-strong); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-strong); }
+
+  /* Backdrop hint — show that page is "softly attended" but not blocked */
+  .scrim {
+    position: fixed; inset: 0;
+    background: rgba(31, 29, 23, 0.04);
+    pointer-events: none;
+    z-index: 20;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="v2-header">
+    <div class="v2-kicker">讨论 / 客户</div>
+    <div class="v2-title-row">
+      <h1 class="v2-title">客户需求 X 上线</h1>
+      <span class="v2-status-chip">执行中</span>
+    </div>
+    <div class="v2-subtext">8 个文件 · owner: alice · 创建于 2026-04-12</div>
+  </header>
+
+  <div class="scrim"></div>
+
+  <div class="lane-grid">
+    <div class="lane-col">
+      <div class="lane-head planning"><span class="dot"></span>讨论中</div>
+      <div class="node-card"><span class="type-tag think">think</span><div class="nodetitle">初步分析需求范围</div><div class="meta">alice · 04-13</div></div>
+    </div>
+    <div class="lane-col">
+      <div class="lane-head executing"><span class="dot"></span>执行中</div>
+      <div class="node-card"><span class="type-tag act">act</span><div class="nodetitle">准备技术方案</div><div class="meta">alice · 04-15</div></div>
+
+      <div class="node-card alert">
+        <span class="type-tag act">act</span>
+        <div class="nodetitle">实现客户需求</div>
+        <div class="meta">alice · 04-18</div>
+        <span class="alert-pill">超期 1 天</span>
+
+        <!-- popover anchored on this card -->
+        <div class="popover">
+          <div class="popover-header">
+            <div class="pop-icon">⚠</div>
+            <div class="pop-title-area">
+              <div class="pop-category">调度台 · 验收待办</div>
+              <div class="pop-title">act 003 已超期 1 天</div>
+            </div>
+            <button class="pop-close" aria-label="关闭">✕</button>
+          </div>
+          <div class="popover-body">
+            <div class="pop-reason">owner 上周五写了 think 提到"等产品 review"，但本周三还没收到反馈，实际进展可能卡在外部依赖。</div>
+            <div class="pop-evidence">📄 003_alice_act_a4b2c1.md →</div>
+            <div class="pop-suggestion"><span class="sug-label">建议</span>写 verify 验收 act 003；或催产品给出 review。</div>
+            <div class="pop-actions">
+              <button class="btn btn-primary">+ 验收</button>
+              <button class="btn">提醒 alice</button>
+              <button class="btn">延后一周</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="node-card dim"><span class="type-tag verify">verify</span><div class="nodetitle">待办: 验收上线</div><div class="meta">alice · pending</div></div>
+    </div>
+    <div class="lane-col"><div class="lane-head paused"><span class="dot"></span>已暂停</div></div>
+    <div class="lane-col"><div class="lane-head finished"><span class="dot"></span>已完成</div></div>
+    <div class="lane-col"><div class="lane-head cancelled"><span class="dot"></span>已取消</div></div>
+    <div class="lane-col"><div class="lane-head reviewed"><span class="dot"></span>已复盘</div></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Pivot Mockups · UI 方案预览</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf8f3; --surface: #ffffff; --surface-alt: #f4f1e8;
+    --line: #ebe6d8; --line-strong: #d8d2c0;
+    --text: #1f1d17; --text-soft: #4a4637; --text-mute: #8a8572;
+    --accent: #5a3a1a; --accent-strong: #3d2811; --accent-bg: #f3ead8;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+  }
+  body {
+    font-family: "Inter", "Noto Sans SC", -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+  .page-header { margin-bottom: 40px; }
+  .kicker { font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .lede { color: var(--text-soft); font-size: 15px; max-width: 640px; }
+
+  .featured {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    color: #fff; padding: 28px 32px; border-radius: var(--r-lg);
+    margin-bottom: 36px;
+    box-shadow: 0 8px 24px rgba(90,58,26,0.18);
+    display: flex; align-items: center; gap: 24px;
+  }
+  .featured .icon-big { font-size: 48px; flex-shrink: 0; }
+  .featured-text { flex: 1; }
+  .featured-tag {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 999px;
+    letter-spacing: 0.06em; margin-bottom: 8px; text-transform: uppercase;
+  }
+  .featured h2 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .featured p { color: rgba(255,255,255,0.85); font-size: 13.5px; line-height: 1.6; margin-bottom: 14px; }
+  .featured a {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff; color: var(--accent); padding: 9px 18px;
+    border-radius: var(--r-sm); font-weight: 600; font-size: 13.5px;
+    text-decoration: none;
+  }
+  .featured a:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+
+  .section { margin-top: 36px; }
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .section-hint { color: var(--text-mute); font-size: 12.5px; margin-bottom: 16px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+    padding: 18px 20px; text-decoration: none; color: var(--text);
+    transition: all .15s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(31,29,23,0.08); }
+  .card-letter {
+    display: inline-block; font-size: 11px; font-weight: 700;
+    background: var(--accent-bg); color: var(--accent);
+    padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card p { font-size: 12.5px; color: var(--text-mute); line-height: 1.55; }
+
+  .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-mute); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="page-header">
+    <div class="kicker">Pivot · UI 方案预览</div>
+    <h1>AI 调度台 v2 — 弹出框设计方案</h1>
+    <p class="lede">几套不同形态的「点开事项后弹出上下文」方案，给团队对比挑选。配色按 Pivot journal 风（米色 + sepia brown）落到 V2 lane-grid 真实布局上。</p>
+  </header>
+
+  <!-- 主推方案 -->
+  <a href="scheduler-showcase.html" class="featured" style="text-decoration:none;">
+    <div class="icon-big">📋</div>
+    <div class="featured-text">
+      <span class="featured-tag">⭐ 集成 DEMO</span>
+      <h2>5 种风格一页对比</h2>
+      <p>包含 AI 调度台主页 + V2 matter 详情页 + 5 种弹出框风格切换器。点列表里任一事项进 matter 详情，顶部彩色 toolbar 切换风格即时对比。最推荐给领导看这一个。</p>
+      <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--accent);padding:9px 18px;border-radius:var(--r-sm);font-weight:600;font-size:13.5px;">打开集成 demo →</span>
+    </div>
+  </a>
+
+  <!-- V3 单文件版（V2 lane-grid 背景 + Pivot 配色） -->
+  <div class="section">
+    <div class="section-title">单文件版 · V2 lane-grid + Pivot 配色</div>
+    <div class="section-hint">每个文件单独看一种风格，不带切换器；适合细节挑刺</div>
+    <div class="grid">
+      <a class="card" href="scheduler-popup-v3-popover.html">
+        <span class="card-letter">D</span>
+        <h3>卡片气泡</h3>
+        <p>从源 act 卡片旁弹出气泡浮卡 · 自带箭头指向源、最强上下文感</p>
+      </a>
+      <a class="card" href="scheduler-popup-v3-bottom.html">
+        <span class="card-letter">C</span>
+        <h3>底部抽屉</h3>
+        <p>从屏幕底部滑上来横向 sheet · 不挡 lane-grid 横向滚动</p>
+      </a>
+      <a class="card" href="scheduler-popup-v3-chat.html">
+        <span class="card-letter">E</span>
+        <h3>AI 对话风</h3>
+        <p>右侧 drawer + AI bot 头像 + chat bubble · AI 灵魂感最强</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- V2 双 drawer 方案 -->
+  <div class="section">
+    <div class="section-title">右侧 Drawer · A/B 排版差异</div>
+    <div class="section-hint">两个都是右侧抽屉，对比内部信息分块方式</div>
+    <div class="grid">
+      <a class="card" href="scheduler-popup-v2-clean.html">
+        <span class="card-letter">A</span>
+        <h3>简洁专业</h3>
+        <p>顶部 stripe + 上下分区 + 主按钮全宽 · 视觉重量轻</p>
+      </a>
+      <a class="card" href="scheduler-popup-v2-cards.html">
+        <span class="card-letter">B</span>
+        <h3>卡片分块</h3>
+        <p>米色底 + 3 个独立白卡 · 分块感强、跟 V2 node-card 同构</p>
+      </a>
+    </div>
+  </div>
+
+  <!-- 早期草稿（不同色调） -->
+  <div class="section">
+    <div class="section-title">早期草稿 · 非 Pivot 配色（仅参考）</div>
+    <div class="section-hint">用橙色 + 现代灰白做的第一版，没匹配 Pivot 实际 journal 配色，留作对比</div>
+    <div class="grid">
+      <a class="card" href="scheduler-popup-A.html"><span class="card-letter">早 A</span><h3>简洁专业（橙）</h3><p>橙色 stripe + 简单分区</p></a>
+      <a class="card" href="scheduler-popup-B.html"><span class="card-letter">早 B</span><h3>卡片分块（灰底）</h3><p>渐变 icon + 圆角白卡</p></a>
+      <a class="card" href="scheduler-popup-C.html"><span class="card-letter">早 C</span><h3>紧凑高密度</h3><p>极简、380px 窄抽屉</p></a>
+    </div>
+  </div>
+
+  <div class="footer">Pivot 内部团队 · UI 方案预览 · 配色基于 <code>web/src/index.css</code> journal palette</div>
+
+</div>
+</body>
+</html>

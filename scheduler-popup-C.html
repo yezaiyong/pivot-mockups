@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>C · 紧凑高密度 / 极简风</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Helvetica Neue", sans-serif;
+    background: #fafafa;
+    color: #18181b;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { display: flex; min-height: 100vh; }
+  .timeline-area { flex: 1; padding: 28px 40px; max-width: calc(100% - 380px); }
+  .matter-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .matter-meta { color: #71717a; font-size: 12px; margin-bottom: 24px; }
+  .timeline-card {
+    background: #fff; border: 1px solid #e4e4e7; border-radius: 4px;
+    padding: 12px 14px; margin-bottom: 8px;
+  }
+  .timeline-card .type-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 2px;
+    font-size: 11px; font-weight: 600; margin-right: 8px;
+  }
+  .type-tag.think { background: #e0e7ff; color: #3730a3; }
+  .type-tag.act   { background: #fed7aa; color: #9a3412; }
+  .type-tag.verify{ background: #d1fae5; color: #065f46; }
+  .timeline-card .summary { color: #52525b; font-size: 13px; margin-top: 2px; }
+  .timeline-card .meta { color: #a1a1aa; font-size: 11px; margin-top: 4px; }
+  .timeline-card.highlight {
+    border-color: #f97316; border-left: 3px solid #f97316;
+  }
+
+  /* Drawer - narrow + dense */
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 380px; background: #fff;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.04);
+    border-left: 1px solid #e4e4e7;
+    display: flex; flex-direction: column;
+    animation: slideIn 0.2s ease-out;
+  }
+  @keyframes slideIn { from { transform: translateX(8px); } to { transform: none; } }
+
+  .drawer-header {
+    padding: 14px 20px; border-bottom: 1px solid #e4e4e7;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .priority-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #f97316; flex-shrink: 0;
+  }
+  .drawer-category {
+    font-size: 12px; font-weight: 500; color: #18181b;
+    flex: 1; min-width: 0;
+  }
+  .drawer-category .sub { color: #71717a; font-weight: 400; margin-left: 6px; }
+  .drawer-close {
+    width: 24px; height: 24px; border-radius: 4px;
+    background: transparent; border: none; cursor: pointer;
+    color: #71717a; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drawer-close:hover { background: #f4f4f5; }
+
+  .drawer-body { flex: 1; overflow-y: auto; padding: 0; }
+  .row {
+    padding: 14px 20px; border-bottom: 1px solid #f4f4f5;
+  }
+  .row:last-child { border-bottom: none; }
+  .row-label {
+    font-size: 11px; font-weight: 600; color: #71717a;
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .row-content { font-size: 13px; color: #27272a; line-height: 1.6; }
+
+  .file-link {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px; color: #f97316; cursor: pointer;
+  }
+  .file-link:hover { text-decoration: underline; }
+
+  .next-step-content {
+    border-left: 2px solid #f97316;
+    padding-left: 10px;
+  }
+
+  .drawer-footer {
+    padding: 12px 20px; border-top: 1px solid #e4e4e7;
+    display: flex; gap: 6px;
+  }
+  .btn {
+    height: 32px; border-radius: 4px; padding: 0 12px;
+    font-size: 12.5px; font-weight: 500; cursor: pointer;
+    border: 1px solid #e4e4e7; background: #fff; color: #27272a;
+    display: flex; align-items: center; justify-content: center;
+    flex: 1; white-space: nowrap;
+  }
+  .btn:hover { background: #fafafa; }
+  .btn-primary {
+    background: #f97316; color: #fff; border-color: #f97316;
+  }
+  .btn-primary:hover { background: #ea580c; }
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="timeline-area">
+    <h1 class="matter-title">客户需求 X 上线</h1>
+    <div class="matter-meta">owner: alice · executing · 创建于 2026-04-12</div>
+
+    <div class="timeline-card"><span class="type-tag think">think</span>初步分析需求范围<div class="summary">客户提了 3 个变更点,需要先跟产品对齐...</div><div class="meta">alice · 2026-04-13</div></div>
+    <div class="timeline-card"><span class="type-tag act">act</span>准备技术方案<div class="summary">方案文档已发产品 review,等周三反馈</div><div class="meta">alice · 2026-04-15</div></div>
+    <div class="timeline-card highlight"><span class="type-tag act">act</span>实现客户需求 ⚠<div class="summary">due_at = 2026-04-29,实现并发布</div><div class="meta">alice · 2026-04-18 · 超期 1 天</div></div>
+    <div class="timeline-card"><span class="type-tag verify">verify</span>待办: 验收上线效果<div class="summary">验收人: alice</div><div class="meta">尚未完成</div></div>
+  </main>
+
+  <aside class="drawer">
+    <div class="drawer-header">
+      <div class="priority-dot"></div>
+      <div class="drawer-category">验收待办 <span class="sub">· R-01</span></div>
+      <button class="drawer-close" aria-label="关闭">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="row">
+        <div class="row-label">触发原因</div>
+        <div class="row-content">act 003「实现客户需求」已超期 1 天。owner 上周五写了 think 提到"等产品 review",但本周三还没收到反馈,实际进展可能卡在外部依赖。</div>
+      </div>
+
+      <div class="row">
+        <div class="row-label">证据文件</div>
+        <div class="row-content">
+          <span class="file-link">003_alice_act_a4b2c1.md →</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="row-label">建议下一步</div>
+        <div class="row-content next-step-content">
+          写一篇 verify 验收 act 003;或者主动催产品给出 review 结果。
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn btn-primary">+ 验收</button>
+      <button class="btn">提醒</button>
+      <button class="btn">延后</button>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

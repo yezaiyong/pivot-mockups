@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>V2-Clean · Drawer + Pivot 配色（简洁专业）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #faf8f3;
+    --bg-alt: #f4f1e8;
+    --surface: #ffffff;
+    --surface-alt: #faf8f3;
+    --line: #ebe6d8;
+    --line-soft: #f4f1e8;
+    --line-strong: #d8d2c0;
+    --text: #1f1d17;
+    --text-soft: #4a4637;
+    --text-mute: #8a8572;
+    --text-fade: #b8b1a0;
+    --accent: #5a3a1a;
+    --accent-strong: #3d2811;
+    --accent-soft: #e8dcc4;
+    --accent-bg: #f3ead8;
+    --accent-ink: #ffffff;
+    --warn-500: #c98a1a;
+    --warn-600: #a36a0e;
+    --warn-bg: #fdf6e3;
+    --info-500: #3a6bf5;
+    --info-bg: #e7edfb;
+    --ok-500: #2f9e6a;
+    --ok-bg: #e3f4eb;
+    --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
+  }
+  body {
+    font-family: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+    font-feature-settings: "ss01" 1, "cv11" 1;
+  }
+  .page { display: flex; min-height: 100vh; }
+
+  /* === Matter detail V2: lane-grid mindmap === */
+  .v2-area { flex: 1; padding: 20px 28px; max-width: calc(100% - 440px); overflow-x: auto; }
+  .v2-header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px; margin-bottom: 18px;
+  }
+  .v2-kicker { font-size: 11px; color: var(--text-fade); margin-bottom: 4px; }
+  .v2-title-row { display: flex; align-items: center; gap: 12px; }
+  .v2-title { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .v2-status-chip {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: var(--info-bg); color: var(--info-500); font-weight: 500;
+  }
+  .v2-subtext { color: var(--text-mute); font-size: 12px; margin-top: 6px; }
+
+  /* Lane grid */
+  .lane-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(150px, 1fr));
+    gap: 12px;
+    position: relative;
+  }
+  .lane-col {
+    min-height: 480px;
+    border-right: 1px dashed var(--line);
+    padding: 0 4px;
+  }
+  .lane-col:last-child { border-right: none; }
+  .lane-head {
+    font-size: 11px; font-weight: 600; color: var(--text-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 6px 4px 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lane-head .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .lane-head.planning .dot { background: var(--info-500); }
+  .lane-head.executing .dot { background: var(--violet-500, #6c52d9); }
+  .lane-head.paused .dot { background: var(--warn-500); }
+  .lane-head.finished .dot { background: var(--ok-500); }
+  .lane-head.cancelled .dot { background: var(--text-mute); }
+  .lane-head.reviewed .dot { background: var(--text-mute); }
+
+  .node-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 0 rgba(31,29,23,0.04);
+    cursor: pointer;
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .node-card:hover { border-color: var(--line-strong); }
+  .node-card.dim { opacity: 0.4; }
+  .node-card.focused { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .node-card.alert { border-color: var(--warn-500); box-shadow: 0 0 0 2px rgba(201,138,26,0.18); }
+  .type-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  .type-tag.think { background: var(--info-bg); color: var(--info-500); }
+  .type-tag.act { background: var(--accent-bg); color: var(--accent); }
+  .type-tag.verify { background: var(--ok-bg); color: var(--ok-500); }
+  .type-tag.result { background: var(--accent-bg); color: var(--accent); }
+  .node-card .nodetitle { font-size: 12.5px; color: var(--text); margin: 2px 0; }
+  .node-card .meta { font-size: 10.5px; color: var(--text-mute); }
+  .node-card .alert-pill {
+    display: inline-block; margin-top: 4px;
+    font-size: 10px; padding: 1px 5px; border-radius: 2px;
+    background: var(--warn-bg); color: var(--warn-600); font-weight: 600;
+  }
+
+  /* === Drawer === */
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 440px; background: var(--surface);
+    border-left: 1px solid var(--line);
+    box-shadow: -6px 0 24px rgba(31,29,23,0.06);
+    display: flex; flex-direction: column;
+    animation: slideIn 0.24s ease-out;
+    z-index: 50;
+  }
+  @keyframes slideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+
+  .drawer-stripe {
+    height: 3px; background: var(--warn-500);
+  }
+  .drawer-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .drawer-icon {
+    width: 36px; height: 36px; border-radius: var(--r-sm);
+    background: var(--warn-bg); color: var(--warn-600);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .drawer-title-area { flex: 1; min-width: 0; }
+  .drawer-category {
+    font-size: 10.5px; font-weight: 500; color: var(--text-fade);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+  .drawer-title {
+    font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.4;
+  }
+  .drawer-close {
+    width: 28px; height: 28px; border-radius: var(--r-sm);
+    background: transparent; border: none; cursor: pointer;
+    color: var(--text-mute); font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drawer-close:hover { background: var(--surface-alt); color: var(--text); }
+
+  .drawer-body { flex: 1; overflow-y: auto; padding: 18px 22px; }
+  .section { margin-bottom: 20px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-label {
+    font-size: 10.5px; font-weight: 600; color: var(--text-mute);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .reason-text { font-size: 13.5px; color: var(--text); line-height: 1.7; }
+
+  .evidence-box {
+    background: var(--surface-alt); border: 1px solid var(--line);
+    border-radius: var(--r-sm); padding: 9px 12px;
+  }
+  .evidence-file {
+    font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+    font-size: 12px; color: var(--accent); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .evidence-file:hover { text-decoration: underline; }
+
+  .suggestion {
+    font-size: 13.5px; color: var(--text); line-height: 1.7;
+    background: var(--accent-bg); border-left: 3px solid var(--accent);
+    padding: 10px 14px; border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  }
+
+  .drawer-footer {
+    padding: 14px 22px; border-top: 1px solid var(--line-soft);
+    display: flex; flex-direction: column; gap: 8px;
+    background: var(--surface);
+  }
+  .btn {
+    height: 36px; border-radius: var(--r-sm); padding: 0 14px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    transition: background .12s, border-color .12s;
+  }
+  .btn:hover { background: var(--surface-alt); border-color: var(--line-strong); }
+  .btn-primary {
+    background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="v2-area">
+    <header class="v2-header">
+      <div class="v2-kicker">讨论 / 客户</div>
+      <div class="v2-title-row">
+        <h1 class="v2-title">客户需求 X 上线</h1>
+        <span class="v2-status-chip">执行中</span>
+      </div>
+      <div class="v2-subtext">8 个文件 · owner: alice · 创建于 2026-04-12</div>
+    </header>
+
+    <div class="lane-grid">
+      <div class="lane-col">
+        <div class="lane-head planning"><span class="dot"></span>讨论中</div>
+        <div class="node-card">
+          <span class="type-tag think">think</span>
+          <div class="nodetitle">初步分析需求范围</div>
+          <div class="meta">alice · 04-13</div>
+        </div>
+      </div>
+
+      <div class="lane-col">
+        <div class="lane-head executing"><span class="dot"></span>执行中</div>
+        <div class="node-card">
+          <span class="type-tag act">act</span>
+          <div class="nodetitle">准备技术方案</div>
+          <div class="meta">alice · 04-15</div>
+        </div>
+        <div class="node-card alert focused">
+          <span class="type-tag act">act</span>
+          <div class="nodetitle">实现客户需求</div>
+          <div class="meta">alice · 04-18</div>
+          <span class="alert-pill">超期 1 天</span>
+        </div>
+        <div class="node-card dim">
+          <span class="type-tag verify">verify</span>
+          <div class="nodetitle">待办: 验收上线</div>
+          <div class="meta">alice · pending</div>
+        </div>
+      </div>
+
+      <div class="lane-col">
+        <div class="lane-head paused"><span class="dot"></span>已暂停</div>
+      </div>
+
+      <div class="lane-col">
+        <div class="lane-head finished"><span class="dot"></span>已完成</div>
+      </div>
+
+      <div class="lane-col">
+        <div class="lane-head cancelled"><span class="dot"></span>已取消</div>
+      </div>
+
+      <div class="lane-col">
+        <div class="lane-head reviewed"><span class="dot"></span>已复盘</div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="drawer">
+    <div class="drawer-stripe"></div>
+    <div class="drawer-header">
+      <div class="drawer-icon">⚠</div>
+      <div class="drawer-title-area">
+        <div class="drawer-category">来自调度台 · 验收待办</div>
+        <div class="drawer-title">系统为什么提醒你？</div>
+      </div>
+      <button class="drawer-close" aria-label="关闭">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="section">
+        <div class="section-label">触发原因</div>
+        <div class="reason-text">act 003「实现客户需求」已超期 1 天。owner 上周五写了 think 提到"等产品 review"，但本周三还没收到反馈，实际进展可能卡在外部依赖。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">证据文件</div>
+        <div class="evidence-box">
+          <span class="evidence-file">📄 003_alice_act_a4b2c1.md →</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">建议下一步</div>
+        <div class="suggestion">写一篇 verify 验收 act 003；或者主动催产品给出 review 结果。</div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn btn-primary">+ 验收</button>
+      <div class="btn-row">
+        <button class="btn">提醒 alice</button>
+        <button class="btn">延后一周</button>
+      </div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>

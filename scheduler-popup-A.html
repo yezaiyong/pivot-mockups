@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>A · 简洁专业风（Pivot style）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", "Helvetica Neue", sans-serif;
+    background: #f7f7f5;
+    color: #1f1f1f;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { display: flex; min-height: 100vh; }
+  .timeline-area { flex: 1; padding: 28px 40px; max-width: calc(100% - 440px); }
+  .matter-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+  .matter-meta { color: #888; font-size: 12px; margin-bottom: 24px; }
+  .timeline-card {
+    background: #fff; border: 1px solid #e8e8e6; border-radius: 6px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .timeline-card .type-tag {
+    display: inline-block; padding: 2px 7px; border-radius: 3px;
+    font-size: 11px; font-weight: 600;
+    background: #fef3c7; color: #92400e; margin-right: 8px;
+  }
+  .timeline-card .type-tag.think { background: #e0e7ff; color: #3730a3; }
+  .timeline-card .type-tag.act   { background: #fed7aa; color: #9a3412; }
+  .timeline-card .type-tag.verify{ background: #d1fae5; color: #065f46; }
+  .timeline-card .summary { color: #444; font-size: 13px; margin-top: 4px; }
+  .timeline-card .meta { color: #999; font-size: 11px; margin-top: 6px; }
+  .timeline-card.highlight {
+    border-color: #ea580c; box-shadow: 0 0 0 3px rgba(234, 88, 12, .12);
+  }
+
+  /* Drawer */
+  .drawer {
+    position: fixed; top: 0; right: 0; bottom: 0;
+    width: 440px; background: #fff;
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.06);
+    border-left: 1px solid #e8e8e6;
+    display: flex; flex-direction: column;
+    animation: slideIn 0.24s ease-out;
+  }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  .drawer-stripe {
+    height: 4px; background: #ea580c;
+  }
+  .drawer-header {
+    padding: 18px 24px 14px; border-bottom: 1px solid #f0f0ee;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .drawer-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: #fff7ed; color: #ea580c;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .drawer-title-area { flex: 1; min-width: 0; }
+  .drawer-category {
+    font-size: 11px; font-weight: 500; color: #999;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 2px;
+  }
+  .drawer-title {
+    font-size: 15px; font-weight: 600; color: #1f1f1f;
+  }
+  .drawer-close {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: transparent; border: none; cursor: pointer;
+    color: #888; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drawer-close:hover { background: #f5f5f3; color: #1f1f1f; }
+
+  .drawer-body { flex: 1; overflow-y: auto; padding: 18px 24px; }
+  .section { margin-bottom: 20px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-label {
+    font-size: 11px; font-weight: 500; color: #999;
+    text-transform: uppercase; letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .reason-text { font-size: 13.5px; color: #333; line-height: 1.65; }
+
+  .evidence-box {
+    background: #fafaf8; border: 1px solid #e8e8e6; border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .evidence-file {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px; color: #ea580c; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .evidence-file:hover { text-decoration: underline; }
+
+  .suggestion {
+    font-size: 13.5px; color: #333; line-height: 1.65;
+    background: #fffbf5; border-left: 3px solid #ea580c; padding: 10px 12px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .drawer-footer {
+    padding: 14px 24px; border-top: 1px solid #f0f0ee;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .btn {
+    height: 36px; border-radius: 6px; padding: 0 14px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    border: 1px solid #e8e8e6; background: #fff; color: #333;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn:hover { background: #f7f7f5; }
+  .btn-primary {
+    background: #ea580c; color: #fff; border-color: #ea580c;
+  }
+  .btn-primary:hover { background: #c2410c; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="timeline-area">
+    <h1 class="matter-title">客户需求 X 上线</h1>
+    <div class="matter-meta">owner: alice · executing · 创建于 2026-04-12</div>
+
+    <div class="timeline-card"><span class="type-tag think">think</span>初步分析需求范围<div class="summary">客户提了 3 个变更点,需要先跟产品对齐...</div><div class="meta">alice · 2026-04-13</div></div>
+    <div class="timeline-card"><span class="type-tag act">act</span>准备技术方案<div class="summary">方案文档已发产品 review,等周三反馈</div><div class="meta">alice · 2026-04-15</div></div>
+    <div class="timeline-card highlight"><span class="type-tag act">act</span>实现客户需求 ⚠<div class="summary">due_at = 2026-04-29,实现并发布</div><div class="meta">alice · 2026-04-18 · 超期 1 天</div></div>
+    <div class="timeline-card"><span class="type-tag verify">verify</span>待办: 验收上线效果<div class="summary">验收人: alice</div><div class="meta">尚未完成</div></div>
+  </main>
+
+  <aside class="drawer">
+    <div class="drawer-stripe"></div>
+    <div class="drawer-header">
+      <div class="drawer-icon">🟠</div>
+      <div class="drawer-title-area">
+        <div class="drawer-category">来自调度台 · 验收待办</div>
+        <div class="drawer-title">系统为什么提醒你？</div>
+      </div>
+      <button class="drawer-close" aria-label="关闭">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div class="section">
+        <div class="section-label">触发原因</div>
+        <div class="reason-text">act 003「实现客户需求」已超期 1 天,owner 上周五写了 think 提到"等产品 review",但本周三还没收到反馈,实际进展可能卡在外部依赖。</div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">证据文件</div>
+        <div class="evidence-box">
+          <div class="evidence-file">📄 003_alice_act_a4b2c1.md →</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">建议下一步</div>
+        <div class="suggestion">写一篇 verify 验收 act 003;或者主动催产品给出 review 结果。</div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn btn-primary">+ 验收</button>
+      <div class="btn-row">
+        <button class="btn">提醒 alice</button>
+        <button class="btn">延后一周</button>
+      </div>
+    </div>
+  </aside>
+</div>
+</body>
+</html>
