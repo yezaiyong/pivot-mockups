@@ -2,148 +2,1083 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>Pivot Mockups · UI 方案预览</title>
+<title>AI 调度台 v2 · 弹出框方案集成 demo</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #faf8f3; --surface: #ffffff; --surface-alt: #f4f1e8;
-    --line: #ebe6d8; --line-strong: #d8d2c0;
-    --text: #1f1d17; --text-soft: #4a4637; --text-mute: #8a8572;
-    --accent: #5a3a1a; --accent-strong: #3d2811; --accent-bg: #f3ead8;
+    --bg: #faf8f3; --bg-alt: #f4f1e8; --surface: #ffffff; --surface-alt: #faf8f3;
+    --line: #ebe6d8; --line-soft: #f4f1e8; --line-strong: #d8d2c0;
+    --text: #1f1d17; --text-soft: #4a4637; --text-mute: #8a8572; --text-fade: #b8b1a0;
+    --accent: #5a3a1a; --accent-strong: #3d2811; --accent-soft: #e8dcc4;
+    --accent-bg: #f3ead8; --accent-ink: #ffffff;
+    --warn-500: #c98a1a; --warn-600: #a36a0e; --warn-bg: #fdf6e3;
+    --info-500: #3a6bf5; --info-bg: #e7edfb;
+    --ok-500: #2f9e6a; --ok-bg: #e3f4eb;
+    --danger-500: #c74545; --danger-bg: #fbe9e9;
+    --violet-500: #6c52d9; --violet-bg: #ede9f9;
     --r-sm: 6px; --r-md: 10px; --r-lg: 14px;
   }
   body {
     font-family: "Inter", "Noto Sans SC", -apple-system, sans-serif;
     background: var(--bg); color: var(--text);
-    font-size: 14px; line-height: 1.6;
+    font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased;
   }
-  .container { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
-  .page-header { margin-bottom: 40px; }
-  .kicker { font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
-  h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; }
-  .lede { color: var(--text-soft); font-size: 15px; max-width: 640px; }
 
-  .featured {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
-    color: #fff; padding: 28px 32px; border-radius: var(--r-lg);
-    margin-bottom: 36px;
-    box-shadow: 0 8px 24px rgba(90,58,26,0.18);
-    display: flex; align-items: center; gap: 24px;
+  /* ===== Top toolbar — style switcher ===== */
+  .toolbar {
+    position: sticky; top: 0; z-index: 100;
+    background: linear-gradient(180deg, #1f1d17 0%, #2a2620 100%);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 16px;
+    border-bottom: 2px solid var(--accent);
+    box-shadow: 0 4px 16px rgba(31,29,23,0.12);
   }
-  .featured .icon-big { font-size: 48px; flex-shrink: 0; }
-  .featured-text { flex: 1; }
-  .featured-tag {
-    display: inline-block; font-size: 10.5px; font-weight: 700;
-    background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 999px;
-    letter-spacing: 0.06em; margin-bottom: 8px; text-transform: uppercase;
+  .toolbar-title {
+    font-size: 13px; font-weight: 600; color: #fff;
+    margin-right: 4px;
+    display: flex; align-items: center; gap: 8px;
   }
-  .featured h2 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
-  .featured p { color: rgba(255,255,255,0.85); font-size: 13.5px; line-height: 1.6; margin-bottom: 14px; }
-  .featured a {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #fff; color: var(--accent); padding: 9px 18px;
-    border-radius: var(--r-sm); font-weight: 600; font-size: 13.5px;
-    text-decoration: none;
+  .toolbar-title .badge {
+    background: var(--accent); color: var(--accent-ink);
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
-  .featured a:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
-
-  .section { margin-top: 36px; }
-  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
-  .section-hint { color: var(--text-mute); font-size: 12.5px; margin-bottom: 16px; }
-
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-  .card {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
-    padding: 18px 20px; text-decoration: none; color: var(--text);
+  .toolbar-hint {
+    font-size: 11.5px; color: #c4b8a0;
+    background: rgba(255,255,255,0.08);
+    padding: 4px 10px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    white-space: nowrap;
+  }
+  .toolbar-hint::before { content: "👇 "; }
+  .style-tabs {
+    display: flex; gap: 6px;
+    padding: 4px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .style-tab {
+    height: 32px; padding: 0 14px;
+    border-radius: 999px; border: 1px solid transparent;
+    color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: all .18s ease;
+    white-space: nowrap;
+  }
+  /* Distinct bright color per tab so it's clearly a "palette of choices" */
+  .style-tab[data-style="clean"]   { background: rgba(58,107,245,0.22);  color: #91b4ff; border-color: rgba(58,107,245,0.4); }
+  .style-tab[data-style="cards"]   { background: rgba(108,82,217,0.22);  color: #bca6ff; border-color: rgba(108,82,217,0.4); }
+  .style-tab[data-style="bottom"]  { background: rgba(201,138,26,0.22);  color: #f4c878; border-color: rgba(201,138,26,0.45); }
+  .style-tab[data-style="popover"] { background: rgba(47,158,106,0.22);  color: #7ccfa3; border-color: rgba(47,158,106,0.4); }
+  .style-tab[data-style="chat"]    { background: rgba(199,69,69,0.22);   color: #f0a0a0; border-color: rgba(199,69,69,0.4); }
+  .style-tab:hover { transform: translateY(-1px); filter: brightness(1.15); }
+  /* Active: solid bright fill + white text + shadow */
+  .style-tab.active {
+    color: #fff; font-weight: 700;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: translateY(-1px);
+  }
+  .style-tab[data-style="clean"].active   { background: #3a6bf5; border-color: #3a6bf5; }
+  .style-tab[data-style="cards"].active   { background: #6c52d9; border-color: #6c52d9; }
+  .style-tab[data-style="bottom"].active  { background: #c98a1a; border-color: #c98a1a; }
+  .style-tab[data-style="popover"].active { background: #2f9e6a; border-color: #2f9e6a; }
+  .style-tab[data-style="chat"].active    { background: #c74545; border-color: #c74545; }
+  .toolbar-right {
+    margin-left: auto;
+    font-size: 11.5px; color: #c4b8a0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toolbar-right .cur {
+    color: #fff; font-weight: 600;
+    background: var(--accent); padding: 3px 10px; border-radius: 999px;
+    font-size: 11.5px;
+  }
+  .home-btn {
+    height: 32px; padding: 0 14px;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; border-radius: var(--r-sm);
+    font-size: 12.5px; font-weight: 600; cursor: pointer;
+    display: none; align-items: center; gap: 6px;
+    box-shadow: 0 2px 8px rgba(90,58,26,0.4);
     transition: all .15s;
   }
-  .card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(31,29,23,0.08); }
-  .card-letter {
-    display: inline-block; font-size: 11px; font-weight: 700;
-    background: var(--accent-bg); color: var(--accent);
-    padding: 2px 8px; border-radius: 4px; margin-bottom: 8px;
+  .home-btn:hover { background: var(--accent-strong); transform: translateY(-1px); }
+  .home-btn.visible { display: inline-flex; }
+
+  /* ===== Screen system ===== */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ===== Screen 1: SchedulerHome ===== */
+  .scheduler-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 28px 60px;
+  }
+  .sched-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .sched-title { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .sched-title-sub { color: var(--text-mute); font-size: 12.5px; margin-left: 10px; font-weight: 400; }
+  .sched-tools { display: flex; align-items: center; gap: 12px; color: var(--text-mute); font-size: 12.5px; }
+  .sched-tools label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .scope-toggle {
+    display: inline-flex; padding: 2px;
+    background: var(--surface-alt); border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+  }
+  .scope-btn {
+    padding: 3px 12px; border-radius: 4px; cursor: pointer;
+    font-size: 12px; color: var(--text-mute); background: transparent; border: none;
+  }
+  .scope-btn.active { background: var(--surface); color: var(--text); font-weight: 500; }
+
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r-md); padding: 14px 16px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .stat-card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+  .stat-card.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .stat-card .label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: var(--text-mute); margin-bottom: 6px;
+  }
+  .stat-card .label .icon { width: 14px; height: 14px; opacity: 0.7; }
+  .stat-card .value {
+    font-size: 26px; font-weight: 700; color: var(--text);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .stat-card .trend {
+    font-size: 11px; color: var(--text-fade); margin-top: 4px;
+  }
+  .stat-card.overdue .value { color: var(--danger-500); }
+  .stat-card.pending .value { color: var(--warn-600); }
+  .stat-card.done .value { color: var(--ok-500); }
+
+  .list-section {}
+  .list-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .list-title { font-size: 14px; font-weight: 600; }
+  .list-title .count { color: var(--text-fade); font-weight: 400; margin-left: 6px; }
+  .list-meta { font-size: 12px; color: var(--text-fade); }
+
+  .list-table {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r-md); overflow: hidden;
+  }
+  .reminder-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .reminder-row:hover { background: var(--surface-alt); }
+  .reminder-row:last-child { border-bottom: none; }
+  .reminder-row .unread-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--info-500);
+    flex-shrink: 0; margin-top: 7px;
+  }
+  .reminder-row.read .unread-dot { background: transparent; }
+  .reminder-row .row-icon {
+    width: 32px; height: 32px; border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .row-icon.verify { background: var(--warn-bg); color: var(--warn-600); }
+  .row-icon.nudge { background: var(--info-bg); color: var(--info-500); }
+  .row-icon.close { background: var(--ok-bg); color: var(--ok-500); }
+  .row-icon.risk { background: var(--danger-bg); color: var(--danger-500); }
+  .row-icon.pause { background: var(--violet-bg); color: var(--violet-500); }
+
+  .row-content { flex: 1; min-width: 0; }
+  .row-matter-title {
+    font-size: 13.5px; font-weight: 600; color: var(--text); margin-bottom: 2px;
+  }
+  .row-ai-text {
+    font-size: 12.5px; color: var(--text-soft); line-height: 1.55;
+  }
+  .row-meta {
+    font-size: 11px; color: var(--text-fade); margin-top: 4px;
+    display: flex; gap: 10px;
+  }
+  .row-rule-tag {
+    background: var(--surface-alt); padding: 1px 6px; border-radius: 3px;
+    font-family: monospace; font-size: 10.5px;
+  }
+  .row-actions {
+    display: flex; gap: 6px; align-items: center;
+    margin-top: 2px;
+  }
+  .row-btn {
+    height: 26px; padding: 0 10px; border-radius: var(--r-sm);
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--text-soft); font-size: 11.5px; cursor: pointer;
+  }
+  .row-btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .row-btn.primary:hover { background: var(--accent-strong); }
+  .row-btn:hover { background: var(--surface-alt); }
+
+  /* ===== Screen 2: V2 Matter Detail ===== */
+  .v2-page { padding: 0; }
+  .v2-topbar {
+    padding: 12px 28px;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface);
+  }
+  .back-btn {
+    padding: 5px 12px; border-radius: var(--r-sm);
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--text-soft); font-size: 12.5px; cursor: pointer;
+  }
+  .back-btn:hover { background: var(--surface-alt); }
+  .v2-breadcrumb {
+    font-size: 12px; color: var(--text-mute);
+  }
+
+  .v2-layout { display: flex; min-height: calc(100vh - 100px); }
+  .v2-area { flex: 1; padding: 20px 28px; max-width: calc(100% - 440px); overflow-x: auto; }
+  .v2-area.no-drawer { max-width: 100%; }
+  .v2-area.bottom-drawer { padding-bottom: 280px; }
+  .v2-header { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 18px; }
+  .v2-kicker { font-size: 11px; color: var(--text-fade); margin-bottom: 4px; }
+  .v2-title-row { display: flex; align-items: center; gap: 12px; }
+  .v2-title { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .v2-status-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--violet-bg); color: var(--violet-500); font-weight: 500; }
+  .v2-subtext { color: var(--text-mute); font-size: 12px; margin-top: 6px; }
+
+  .lane-grid { display: grid; grid-template-columns: repeat(6, minmax(140px, 1fr)); gap: 12px; position: relative; }
+  .lane-col { min-height: 460px; border-right: 1px dashed var(--line); padding: 0 4px; }
+  .lane-col:last-child { border-right: none; }
+  .lane-head { font-size: 11px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.05em; padding: 6px 4px 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .lane-head .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .lane-head.planning .dot { background: var(--info-500); }
+  .lane-head.executing .dot { background: var(--violet-500); }
+  .lane-head.paused .dot { background: var(--warn-500); }
+  .lane-head.finished .dot { background: var(--ok-500); }
+  .lane-head.cancelled .dot { background: var(--text-mute); }
+  .lane-head.reviewed .dot { background: var(--text-mute); }
+  .node-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 10px; box-shadow: 0 1px 0 rgba(31,29,23,0.04); cursor: pointer; position: relative; }
+  .node-card.alert { border-color: var(--warn-500); box-shadow: 0 0 0 2px rgba(201,138,26,0.18); }
+  .node-card.alert.has-popup {
+    animation: cardPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes cardPulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(201,138,26,0.18); }
+    50%      { box-shadow: 0 0 0 4px rgba(201,138,26,0.32); }
+  }
+  /* "Source pointer" badge on the source card — clearly marks where popup came from */
+  .source-pointer, .source-line { display: none; }
+  .node-card.alert.has-popup .source-pointer,
+  .node-card.alert.has-popup .source-line { display: block; }
+  .source-pointer {
+    position: absolute;
+    top: -10px; right: -10px;
+    background: var(--warn-500); color: #fff;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+    border: 2px solid var(--surface);
+    box-shadow: 0 2px 8px rgba(201,138,26,0.45);
+    animation: pinPulse 1.6s ease-in-out infinite;
+    z-index: 5;
+  }
+  .node-card.alert.has-popup .source-pointer { display: flex; }
+  @keyframes pinPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.15); }
+  }
+  /* Connector dashed line — card right edge → popup left edge */
+  .source-line {
+    position: absolute;
+    top: 34px; right: -32px;
+    width: 32px; height: 2px;
+    background: linear-gradient(90deg,
+      rgba(201,138,26,0.6) 0%,
+      rgba(201,138,26,0.6) 50%,
+      transparent 50%);
+    background-size: 8px 2px;
+    background-repeat: repeat-x;
+    z-index: 4;
+  }
+  .node-card.dim { opacity: 0.4; }
+  .type-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10.5px; font-weight: 600; margin-bottom: 4px; }
+  .type-tag.think { background: var(--info-bg); color: var(--info-500); }
+  .type-tag.act { background: var(--accent-bg); color: var(--accent); }
+  .type-tag.verify { background: var(--ok-bg); color: var(--ok-500); }
+  .nodetitle { font-size: 12.5px; color: var(--text); margin: 2px 0; }
+  .meta { font-size: 10.5px; color: var(--text-mute); }
+  .alert-pill { display: inline-block; margin-top: 4px; font-size: 10px; padding: 1px 5px; border-radius: 2px; background: var(--warn-bg); color: var(--warn-600); font-weight: 600; }
+
+  /* ===== Popup styles (all hidden by default, JS toggles) ===== */
+  .popup { display: none; }
+  .popup.active { display: flex; }
+
+  /* Common drawer */
+  .popup-drawer-base {
+    position: fixed; top: 56px; right: 0; bottom: 0; width: 440px;
+    border-left: 1px solid var(--line);
+    box-shadow: -6px 0 24px rgba(31,29,23,0.06);
+    flex-direction: column; z-index: 60;
+    animation: slideIn .24s ease-out;
+  }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* === A: Clean === */
+  .popup-clean {
+    background: var(--surface);
+  }
+  .popup-clean .stripe { height: 3px; background: var(--warn-500); }
+  .popup-clean .header { padding: 18px 22px 14px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: flex-start; gap: 12px; }
+  .popup-clean .icon { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--warn-bg); color: var(--warn-600); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .popup-clean .title-area { flex: 1; min-width: 0; }
+  .popup-clean .category { font-size: 10.5px; font-weight: 500; color: var(--text-fade); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .popup-clean .title { font-size: 15px; font-weight: 600; }
+  .popup-clean .close { width: 28px; height: 28px; border-radius: var(--r-sm); background: transparent; border: none; cursor: pointer; color: var(--text-mute); font-size: 18px; }
+  .popup-clean .body { flex: 1; overflow-y: auto; padding: 18px 22px; }
+  .popup-clean .section { margin-bottom: 20px; }
+  .popup-clean .section-label { font-size: 10.5px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .popup-clean .reason { font-size: 13.5px; line-height: 1.7; }
+  .popup-clean .evidence-box { background: var(--surface-alt); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 9px 12px; }
+  .popup-clean .evidence-file { font-family: monospace; font-size: 12px; color: var(--accent); cursor: pointer; }
+  .popup-clean .suggestion { font-size: 13.5px; line-height: 1.7; background: var(--accent-bg); border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+  .popup-clean .footer { padding: 14px 22px; border-top: 1px solid var(--line-soft); display: flex; flex-direction: column; gap: 8px; }
+
+  /* === B: Cards === */
+  .popup-cards {
+    background: var(--bg-alt);
+  }
+  .popup-cards .header { padding: 20px 22px 16px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 14px; }
+  .popup-cards .icon-big { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--warn-bg); color: var(--warn-600); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 1px solid color-mix(in srgb, var(--warn-500) 22%, transparent); }
+  .popup-cards .title-area { flex: 1; }
+  .popup-cards .category { font-size: 11px; font-weight: 600; color: var(--warn-600); margin-bottom: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .popup-cards .title { font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .popup-cards .close { width: 32px; height: 32px; border-radius: var(--r-sm); background: var(--surface-alt); border: 1px solid var(--line); cursor: pointer; color: var(--text-soft); font-size: 16px; }
+  .popup-cards .body { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .popup-cards .info-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; }
+  .popup-cards .info-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .popup-cards .info-card-title { font-size: 10.5px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.05em; }
+  .popup-cards .info-card-body { font-size: 13.5px; line-height: 1.7; }
+  .popup-cards .evidence-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--accent-bg); border-radius: var(--r-sm); color: var(--accent); font-family: monospace; font-size: 12px; cursor: pointer; }
+  .popup-cards .footer { padding: 14px 16px; background: var(--surface); border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+
+  /* === Chat === */
+  .popup-chat { background: var(--surface); }
+  .popup-chat .header { padding: 14px 20px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; gap: 10px; }
+  .popup-chat .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-bg), var(--accent-soft)); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px; border: 1px solid var(--accent-soft); }
+  .popup-chat .ai-name { flex: 1; font-size: 13px; font-weight: 600; }
+  .popup-chat .ai-name .sub { font-size: 10.5px; color: var(--text-mute); font-weight: 400; display: block; margin-top: 1px; }
+  .popup-chat .close { width: 28px; height: 28px; border-radius: var(--r-sm); background: transparent; border: none; cursor: pointer; color: var(--text-mute); font-size: 16px; }
+  .popup-chat .body { flex: 1; overflow-y: auto; padding: 18px 20px 8px; display: flex; flex-direction: column; gap: 12px; background: var(--bg); }
+  .popup-chat .bubble { max-width: 92%; padding: 11px 14px; border-radius: var(--r-md); font-size: 13.5px; line-height: 1.65; background: var(--surface); border: 1px solid var(--line); border-bottom-left-radius: 3px; align-self: flex-start; }
+  .popup-chat .bubble .label { font-size: 10px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .popup-chat .bubble strong { color: var(--accent); }
+  .popup-chat .evidence-inline { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; margin-top: 6px; background: var(--accent-bg); border-radius: var(--r-sm); color: var(--accent); font-family: monospace; font-size: 11.5px; cursor: pointer; }
+  .popup-chat .chips { padding: 8px 20px 14px; display: flex; flex-wrap: wrap; gap: 6px; background: var(--bg); border-top: 1px dashed var(--line); }
+  .popup-chat .chip { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 12.5px; font-weight: 500; cursor: pointer; }
+  .popup-chat .chip.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .popup-chat .hint { padding: 8px 20px 12px; font-size: 11px; color: var(--text-fade); background: var(--bg); border-top: 1px solid var(--line-soft); }
+
+  /* === Bottom Sheet === */
+  .popup-bottom {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    box-shadow: 0 -8px 32px rgba(31,29,23,0.08);
+    padding: 18px 28px 20px;
+    animation: slideUp .28s cubic-bezier(.32,.72,0,1);
+    z-index: 60;
+  }
+  .popup-bottom.popup { display: none; }
+  .popup-bottom.popup.active { display: block; }
+  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .popup-bottom .grabber { width: 32px; height: 3px; border-radius: 999px; background: var(--line-strong); margin: -8px auto 14px; }
+  .popup-bottom .close { position: absolute; top: 14px; right: 16px; width: 26px; height: 26px; border-radius: var(--r-sm); background: transparent; border: none; cursor: pointer; color: var(--text-mute); font-size: 16px; }
+  .popup-bottom .grid { display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: start; }
+  .popup-bottom .icon-block { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 4px; }
+  .popup-bottom .icon { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--warn-bg); color: var(--warn-600); display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid color-mix(in srgb, var(--warn-500) 25%, transparent); }
+  .popup-bottom .category { font-size: 10px; font-weight: 600; color: var(--warn-600); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .popup-bottom .content { display: grid; grid-template-columns: 1.4fr 1fr 1.4fr; gap: 24px; }
+  .popup-bottom .block-label { font-size: 10.5px; font-weight: 600; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .popup-bottom .reason { font-size: 13px; line-height: 1.6; }
+  .popup-bottom .evidence-file { display: inline-flex; gap: 6px; padding: 6px 10px; background: var(--surface-alt); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--accent); font-family: monospace; font-size: 11.5px; cursor: pointer; }
+  .popup-bottom .suggestion { font-size: 13px; line-height: 1.6; background: var(--accent-bg); border-left: 3px solid var(--accent); padding: 8px 12px; border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+  .popup-bottom .actions { display: flex; flex-direction: column; gap: 8px; min-width: 120px; }
+
+  /* === Popover (optimized) === */
+  .popup-popover {
+    position: absolute;
+    top: -4px; left: calc(100% + 28px);
+    width: 400px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow:
+      0 20px 50px -12px rgba(31,29,23,0.22),
+      0 8px 20px -6px rgba(31,29,23,0.1),
+      0 0 0 1px rgba(255,255,255,0.6) inset;
+    z-index: 30;
+    overflow: hidden;
+  }
+  .popup-popover.popup { display: none; }
+  .popup-popover.popup.active { display: block; animation: bubbleIn .28s cubic-bezier(.32,.72,0,1); }
+  @keyframes bubbleIn {
+    from { transform: translateX(-12px) scale(0.96); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  /* Bigger, more visible pointing arrow on left edge — matches ribbon color */
+  .popup-popover::before {
+    content: ''; position: absolute; left: -10px; top: 24px;
+    width: 18px; height: 18px;
+    background: var(--warn-bg);
+    border-left: 1.5px solid color-mix(in srgb, var(--warn-500) 28%, var(--line));
+    border-bottom: 1.5px solid color-mix(in srgb, var(--warn-500) 28%, var(--line));
+    transform: rotate(45deg);
+    box-shadow: -4px 4px 10px -2px rgba(201,138,26,0.18);
+    z-index: 1;
+  }
+
+  /* Top ribbon — color-coded rule category */
+  .popup-popover .ribbon {
+    background: linear-gradient(135deg, var(--warn-bg) 0%, #fbecc8 100%);
+    border-bottom: 1px solid color-mix(in srgb, var(--warn-500) 22%, var(--line));
+    padding: 11px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .popup-popover .ribbon-icon {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: #fff;
+    border: 1.5px solid var(--warn-500);
+    color: var(--warn-600);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(201,138,26,0.18);
+  }
+  .popup-popover .ribbon-title {
+    flex: 1; min-width: 0;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700; color: var(--warn-600);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .popup-popover .ribbon-title .rule-code {
+    background: rgba(255,255,255,0.7);
+    padding: 1px 6px; border-radius: 3px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px; font-weight: 600;
+    letter-spacing: 0; color: var(--warn-600);
+  }
+  .popup-popover .overdue-pill {
+    background: var(--warn-500); color: #fff;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 1px 3px rgba(201,138,26,0.4);
+  }
+  .popup-popover .close {
+    width: 24px; height: 24px;
+    background: rgba(255,255,255,0.6); border: none;
+    border-radius: 50%; cursor: pointer;
+    color: var(--warn-600); font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .popup-popover .close:hover { background: #fff; color: var(--text); }
+
+  /* Subject row — what this is about */
+  .popup-popover .subject {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    background: linear-gradient(180deg, #fffdf8 0%, var(--surface) 100%);
+  }
+  .popup-popover .subject-title {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    line-height: 1.4; margin-bottom: 4px;
+    letter-spacing: -0.005em;
+  }
+  .popup-popover .subject-meta {
+    font-size: 11.5px; color: var(--text-mute);
+    display: flex; gap: 8px; align-items: center;
+  }
+  .popup-popover .subject-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-fade); }
+  .popup-popover .owner-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .popup-popover .owner-avatar {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-size: 9px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Body sections */
+  .popup-popover .body { padding: 14px 18px 6px; }
+  .popup-popover .section { margin-bottom: 14px; }
+  .popup-popover .section-head {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 6px;
+  }
+  .popup-popover .section-emoji {
+    font-size: 13px;
+    width: 18px; text-align: center;
+  }
+  .popup-popover .section-label {
+    font-size: 11px; font-weight: 700; color: var(--text-mute);
     letter-spacing: 0.04em;
   }
-  .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .card p { font-size: 12.5px; color: var(--text-mute); line-height: 1.55; }
+  .popup-popover .ai-tag {
+    margin-left: auto;
+    font-size: 9.5px; font-weight: 600;
+    background: var(--accent-bg); color: var(--accent);
+    padding: 1px 6px; border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+  .popup-popover .reason-text {
+    font-size: 13px; line-height: 1.68; color: var(--text-soft);
+    padding-left: 24px;
+  }
+  .popup-popover .evidence-chip {
+    margin-left: 24px;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 11px;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11.5px; font-weight: 500; cursor: pointer;
+    transition: all .12s;
+  }
+  .popup-popover .evidence-chip:hover {
+    background: var(--accent-soft);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(90,58,26,0.12);
+  }
+  .popup-popover .suggestion-box {
+    margin-left: 24px;
+    background: linear-gradient(135deg, #f7eed8 0%, var(--accent-bg) 100%);
+    border-radius: 8px;
+    padding: 10px 12px 10px 14px;
+    border-left: 3px solid var(--accent);
+    font-size: 12.5px; line-height: 1.65;
+    color: var(--text-soft);
+  }
+  .popup-popover .suggestion-box strong { color: var(--accent); font-weight: 600; }
 
-  .footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-mute); }
+  /* Footer actions */
+  .popup-popover .footer {
+    padding: 12px 18px 14px;
+    border-top: 1px solid var(--line-soft);
+    background: var(--surface-alt);
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .popup-popover .btn-primary-big {
+    height: 38px; border-radius: 8px; padding: 0 16px;
+    background: var(--accent); color: var(--accent-ink);
+    border: none; font-size: 13.5px; font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    box-shadow: 0 2px 8px rgba(90,58,26,0.25);
+    transition: all .15s;
+  }
+  .popup-popover .btn-primary-big:hover {
+    background: var(--accent-strong);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(90,58,26,0.35);
+  }
+  .popup-popover .btn-row { display: flex; gap: 6px; }
+  .popup-popover .btn-row .btn-sec {
+    flex: 1; height: 30px; padding: 0 10px;
+    border-radius: 6px;
+    background: var(--surface); color: var(--text-soft);
+    border: 1px solid var(--line);
+    font-size: 11.5px; font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+  .popup-popover .btn-row .btn-sec:hover {
+    background: var(--accent-bg); border-color: var(--accent-soft); color: var(--accent);
+  }
+
+  /* Shared buttons */
+  .btn { height: 36px; border-radius: var(--r-sm); padding: 0 14px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--text); display: flex; align-items: center; justify-content: center; }
+  .btn:hover { background: var(--surface-alt); border-color: var(--line-strong); }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .btn { flex: 1; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12.5px; }
+
+  /* "current style" hint badge on V2 page */
+  .style-hint {
+    position: fixed; top: 56px; left: 24px; z-index: 70;
+    background: var(--accent); color: var(--accent-ink);
+    padding: 6px 12px; border-radius: var(--r-sm);
+    font-size: 11.5px; font-weight: 500;
+    box-shadow: 0 4px 12px rgba(31,29,23,0.15);
+  }
 </style>
 </head>
 <body>
-<div class="container">
 
-  <header class="page-header">
-    <div class="kicker">Pivot · UI 方案预览</div>
-    <h1>AI 调度台 v2 — 弹出框设计方案</h1>
-    <p class="lede">几套不同形态的「点开事项后弹出上下文」方案，给团队对比挑选。配色按 Pivot journal 风（米色 + sepia brown）落到 V2 lane-grid 真实布局上。</p>
-  </header>
-
-  <!-- 主推方案 -->
-  <a href="scheduler-showcase.html" class="featured" style="text-decoration:none;">
-    <div class="icon-big">📋</div>
-    <div class="featured-text">
-      <span class="featured-tag">⭐ 集成 DEMO</span>
-      <h2>5 种风格一页对比</h2>
-      <p>包含 AI 调度台主页 + V2 matter 详情页 + 5 种弹出框风格切换器。点列表里任一事项进 matter 详情，顶部彩色 toolbar 切换风格即时对比。最推荐给领导看这一个。</p>
-      <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--accent);padding:9px 18px;border-radius:var(--r-sm);font-weight:600;font-size:13.5px;">打开集成 demo →</span>
-    </div>
-  </a>
-
-  <!-- V3 单文件版（V2 lane-grid 背景 + Pivot 配色） -->
-  <div class="section">
-    <div class="section-title">单文件版 · V2 lane-grid + Pivot 配色</div>
-    <div class="section-hint">每个文件单独看一种风格，不带切换器；适合细节挑刺</div>
-    <div class="grid">
-      <a class="card" href="scheduler-popup-v3-popover.html">
-        <span class="card-letter">D</span>
-        <h3>卡片气泡</h3>
-        <p>从源 act 卡片旁弹出气泡浮卡 · 自带箭头指向源、最强上下文感</p>
-      </a>
-      <a class="card" href="scheduler-popup-v3-bottom.html">
-        <span class="card-letter">C</span>
-        <h3>底部抽屉</h3>
-        <p>从屏幕底部滑上来横向 sheet · 不挡 lane-grid 横向滚动</p>
-      </a>
-      <a class="card" href="scheduler-popup-v3-chat.html">
-        <span class="card-letter">E</span>
-        <h3>AI 对话风</h3>
-        <p>右侧 drawer + AI bot 头像 + chat bubble · AI 灵魂感最强</p>
-      </a>
-    </div>
+<!-- Top toolbar - 切换 popup 风格 -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <span class="badge">DEMO</span>
+    AI 调度台 v2 弹出框方案对比
   </div>
-
-  <!-- V2 双 drawer 方案 -->
-  <div class="section">
-    <div class="section-title">右侧 Drawer · A/B 排版差异</div>
-    <div class="section-hint">两个都是右侧抽屉，对比内部信息分块方式</div>
-    <div class="grid">
-      <a class="card" href="scheduler-popup-v2-clean.html">
-        <span class="card-letter">A</span>
-        <h3>简洁专业</h3>
-        <p>顶部 stripe + 上下分区 + 主按钮全宽 · 视觉重量轻</p>
-      </a>
-      <a class="card" href="scheduler-popup-v2-cards.html">
-        <span class="card-letter">B</span>
-        <h3>卡片分块</h3>
-        <p>米色底 + 3 个独立白卡 · 分块感强、跟 V2 node-card 同构</p>
-      </a>
-    </div>
+  <div class="toolbar-hint">点击下面任一彩色按钮切换风格</div>
+  <div class="style-tabs">
+    <button class="style-tab active" data-style="clean">A · 简洁专业</button>
+    <button class="style-tab" data-style="cards">B · 卡片分块</button>
+    <button class="style-tab" data-style="bottom">C · 底部抽屉</button>
+    <button class="style-tab" data-style="popover">D · 卡片气泡</button>
+    <button class="style-tab" data-style="chat">E · AI 对话</button>
   </div>
-
-  <!-- 早期草稿（不同色调） -->
-  <div class="section">
-    <div class="section-title">早期草稿 · 非 Pivot 配色（仅参考）</div>
-    <div class="section-hint">用橙色 + 现代灰白做的第一版，没匹配 Pivot 实际 journal 配色，留作对比</div>
-    <div class="grid">
-      <a class="card" href="scheduler-popup-A.html"><span class="card-letter">早 A</span><h3>简洁专业（橙）</h3><p>橙色 stripe + 简单分区</p></a>
-      <a class="card" href="scheduler-popup-B.html"><span class="card-letter">早 B</span><h3>卡片分块（灰底）</h3><p>渐变 icon + 圆角白卡</p></a>
-      <a class="card" href="scheduler-popup-C.html"><span class="card-letter">早 C</span><h3>紧凑高密度</h3><p>极简、380px 窄抽屉</p></a>
-    </div>
+  <div class="toolbar-right">
+    <button class="home-btn" id="home-btn" onclick="backToScheduler()">🏠 返回调度台首页</button>
+    当前 <span class="cur" id="cur-style">A · 简洁专业</span>
   </div>
-
-  <div class="footer">Pivot 内部团队 · UI 方案预览 · 配色基于 <code>web/src/index.css</code> journal palette</div>
-
 </div>
+
+<!-- ============ Screen 1: Scheduler Home ============ -->
+<div class="screen active" id="screen-scheduler">
+  <div class="scheduler-page">
+    <header class="sched-header">
+      <h1 class="sched-title">AI 调度台<span class="sched-title-sub">需要你处理的事项</span></h1>
+      <div class="sched-tools">
+        <label><input type="checkbox"> 显示已延后</label>
+        <div class="scope-toggle">
+          <button class="scope-btn active">我的</button>
+          <button class="scope-btn">全部</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="stats-grid">
+      <div class="stat-card overdue active">
+        <div class="label">⚠ 逾期事项</div>
+        <div class="value">3</div>
+        <div class="trend">↑ 比上周 +1</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="label">📋 待处理</div>
+        <div class="value">5</div>
+        <div class="trend">→ 持平</div>
+      </div>
+      <div class="stat-card new">
+        <div class="label">✨ 本周新增</div>
+        <div class="value">2</div>
+        <div class="trend">↓ 比上周 -1</div>
+      </div>
+      <div class="stat-card done">
+        <div class="label">✓ 本周收尾</div>
+        <div class="value">4</div>
+        <div class="trend">↑ 比上周 +2</div>
+      </div>
+    </section>
+
+    <section class="list-section">
+      <div class="list-header">
+        <div class="list-title">逾期事项<span class="count">· 3</span></div>
+        <div class="list-meta">已过期望完成时间的事项</div>
+      </div>
+
+      <div class="list-table">
+        <div class="reminder-row" onclick="openMatter('客户需求 X 上线')">
+          <div class="unread-dot"></div>
+          <div class="row-icon verify">⚠</div>
+          <div class="row-content">
+            <div class="row-matter-title">客户需求 X 上线</div>
+            <div class="row-ai-text">act 003「实现客户需求」已超期 1 天 · owner alice 上周五写了 think 提到等产品 review</div>
+            <div class="row-meta">
+              <span class="row-rule-tag">R-01</span>
+              <span>验收待办 · alice</span>
+              <span>超期 1 天</span>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="row-btn primary" onclick="event.stopPropagation(); openMatter('客户需求 X 上线');">+ 验收</button>
+            <button class="row-btn" onclick="event.stopPropagation();">···</button>
+          </div>
+        </div>
+
+        <div class="reminder-row read" onclick="openMatter('后端 P95 latency 优化')">
+          <div class="unread-dot"></div>
+          <div class="row-icon risk">⚠</div>
+          <div class="row-content">
+            <div class="row-matter-title">后端 P95 latency 优化</div>
+            <div class="row-ai-text">matter 整体期望 5 月 8 日完成,已过 3 天 · 状态仍 executing,需要决定继续推还是终止</div>
+            <div class="row-meta">
+              <span class="row-rule-tag">R-08</span>
+              <span>matter 过期 · alice</span>
+              <span>超期 3 天</span>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="row-btn primary" onclick="event.stopPropagation(); openMatter('后端 P95 latency 优化');">+ 收尾</button>
+            <button class="row-btn" onclick="event.stopPropagation();">···</button>
+          </div>
+        </div>
+
+        <div class="reminder-row" onclick="openMatter('运营平台权限重构')">
+          <div class="unread-dot"></div>
+          <div class="row-icon pause">⏸</div>
+          <div class="row-content">
+            <div class="row-matter-title">运营平台权限重构</div>
+            <div class="row-ai-text">paused 已 5 天,next_check_at = 昨天 · 该决定继续推还是终止了</div>
+            <div class="row-meta">
+              <span class="row-rule-tag">R-03</span>
+              <span>复查到期 · bob</span>
+              <span>逾期复查</span>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="row-btn primary" onclick="event.stopPropagation(); openMatter('运营平台权限重构');">+ 决定</button>
+            <button class="row-btn" onclick="event.stopPropagation();">···</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ Screen 2: V2 Matter Detail + Popup ============ -->
+<div class="screen" id="screen-matter">
+  <div class="v2-topbar">
+    <button class="back-btn" onclick="backToScheduler()">← 返回调度台</button>
+    <div class="v2-breadcrumb">讨论 / <span id="v2-matter-name">客户需求 X 上线</span></div>
+  </div>
+
+  <div class="style-hint" id="style-hint">当前风格: A · 简洁专业</div>
+
+  <div class="v2-layout">
+    <main class="v2-area" id="v2-area">
+      <header class="v2-header">
+        <div class="v2-kicker">讨论 / 客户</div>
+        <div class="v2-title-row">
+          <h1 class="v2-title">客户需求 X 上线</h1>
+          <span class="v2-status-chip">执行中</span>
+        </div>
+        <div class="v2-subtext">8 个文件 · owner: alice · 创建于 2026-04-12</div>
+      </header>
+
+      <div class="lane-grid">
+        <div class="lane-col">
+          <div class="lane-head planning"><span class="dot"></span>讨论中</div>
+          <div class="node-card"><span class="type-tag think">think</span><div class="nodetitle">初步分析需求范围</div><div class="meta">alice · 04-13</div></div>
+        </div>
+        <div class="lane-col">
+          <div class="lane-head executing"><span class="dot"></span>执行中</div>
+          <div class="node-card"><span class="type-tag act">act</span><div class="nodetitle">准备技术方案</div><div class="meta">alice · 04-15</div></div>
+          <div class="node-card alert" id="alert-card">
+            <span class="source-pointer" title="此卡是右侧提醒的来源">📍</span>
+            <span class="source-line"></span>
+            <span class="type-tag act">act</span>
+            <div class="nodetitle">实现客户需求</div>
+            <div class="meta">alice · 04-18</div>
+            <span class="alert-pill">超期 1 天</span>
+
+            <!-- D: Popover anchored here -->
+            <div class="popup popup-popover" id="pop-popover">
+              <!-- Top ribbon: warm-tinted category + rule code + 紧急 pill -->
+              <div class="ribbon">
+                <div class="ribbon-icon">⚠</div>
+                <div class="ribbon-title">
+                  验收待办
+                  <span class="rule-code">R-01</span>
+                </div>
+                <div class="overdue-pill">超期 1 天</div>
+                <button class="close" onclick="event.stopPropagation(); closePopup();">✕</button>
+              </div>
+
+              <!-- Subject: what this is about -->
+              <div class="subject">
+                <div class="subject-title">act 003「实现客户需求」</div>
+                <div class="subject-meta">
+                  <span class="owner-chip">
+                    <span class="owner-avatar">A</span>
+                    alice
+                  </span>
+                  <span class="dot"></span>
+                  <span>创建于 04-18</span>
+                  <span class="dot"></span>
+                  <span>期望 04-29</span>
+                </div>
+              </div>
+
+              <!-- Body: 3 stacked sections, hanging-indent style -->
+              <div class="body">
+                <div class="section">
+                  <div class="section-head">
+                    <span class="section-emoji">💭</span>
+                    <span class="section-label">系统观察到</span>
+                    <span class="ai-tag">AI</span>
+                  </div>
+                  <div class="reason-text">owner 上周五写了 think 提到「等产品 review」，但本周三还没收到反馈，实际进展可能卡在外部依赖。</div>
+                </div>
+
+                <div class="section">
+                  <div class="section-head">
+                    <span class="section-emoji">🔗</span>
+                    <span class="section-label">证据文件</span>
+                  </div>
+                  <a class="evidence-chip">📄 003_alice_act_a4b2c1.md →</a>
+                </div>
+
+                <div class="section">
+                  <div class="section-head">
+                    <span class="section-emoji">🎯</span>
+                    <span class="section-label">建议下一步</span>
+                    <span class="ai-tag">AI</span>
+                  </div>
+                  <div class="suggestion-box">
+                    写一篇 <strong>verify</strong> 验收 act 003；或主动催产品给出 review 结果。
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer: primary CTA + secondary row -->
+              <div class="footer">
+                <button class="btn-primary-big">+ 验收 act 003</button>
+                <div class="btn-row">
+                  <button class="btn-sec">📧 提醒 alice</button>
+                  <button class="btn-sec">⏱ 延后一周</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="node-card dim"><span class="type-tag verify">verify</span><div class="nodetitle">待办: 验收上线</div><div class="meta">alice · pending</div></div>
+        </div>
+        <div class="lane-col"><div class="lane-head paused"><span class="dot"></span>已暂停</div></div>
+        <div class="lane-col"><div class="lane-head finished"><span class="dot"></span>已完成</div></div>
+        <div class="lane-col"><div class="lane-head cancelled"><span class="dot"></span>已取消</div></div>
+        <div class="lane-col"><div class="lane-head reviewed"><span class="dot"></span>已复盘</div></div>
+      </div>
+    </main>
+
+    <!-- A: Clean Drawer -->
+    <aside class="popup popup-drawer-base popup-clean active" id="pop-clean">
+      <div class="stripe"></div>
+      <div class="header">
+        <div class="icon">⚠</div>
+        <div class="title-area">
+          <div class="category">来自调度台 · 验收待办</div>
+          <div class="title">系统为什么提醒你？</div>
+        </div>
+        <button class="close" onclick="closePopup()">✕</button>
+      </div>
+      <div class="body">
+        <div class="section">
+          <div class="section-label">触发原因</div>
+          <div class="reason">act 003「实现客户需求」已超期 1 天。owner 上周五写了 think 提到"等产品 review",但本周三还没收到反馈,实际进展可能卡在外部依赖。</div>
+        </div>
+        <div class="section">
+          <div class="section-label">证据文件</div>
+          <div class="evidence-box"><span class="evidence-file">📄 003_alice_act_a4b2c1.md →</span></div>
+        </div>
+        <div class="section">
+          <div class="section-label">建议下一步</div>
+          <div class="suggestion">写一篇 verify 验收 act 003；或者主动催产品给出 review 结果。</div>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">+ 验收</button>
+        <div class="btn-row">
+          <button class="btn">提醒 alice</button>
+          <button class="btn">延后一周</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- B: Cards Drawer -->
+    <aside class="popup popup-drawer-base popup-cards" id="pop-cards">
+      <div class="header">
+        <div class="icon-big">⚠</div>
+        <div class="title-area">
+          <div class="category">调度台 · 验收待办</div>
+          <div class="title">act 003 已超期 1 天</div>
+        </div>
+        <button class="close" onclick="closePopup()">✕</button>
+      </div>
+      <div class="body">
+        <div class="info-card">
+          <div class="info-card-header">💡 <span class="info-card-title">系统为什么提醒你</span></div>
+          <div class="info-card-body">act 003「实现客户需求」已超期 1 天。owner 上周五写了 think 提到"等产品 review",但本周三还没收到反馈。</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-header">📄 <span class="info-card-title">证据文件</span></div>
+          <div class="info-card-body"><span class="evidence-chip">003_alice_act_a4b2c1.md →</span></div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-header">🎯 <span class="info-card-title">建议下一步</span></div>
+          <div class="info-card-body">写一篇 verify 验收 act 003；或者主动催产品给出 review 结果。</div>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn btn-primary">+ 验收</button>
+        <div class="btn-row">
+          <button class="btn">提醒 alice</button>
+          <button class="btn">延后一周</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- E: Chat Drawer -->
+    <aside class="popup popup-drawer-base popup-chat" id="pop-chat">
+      <div class="header">
+        <div class="avatar">🤖</div>
+        <div class="ai-name">AI 调度助手<span class="sub">为这件事提了个醒</span></div>
+        <button class="close" onclick="closePopup()">✕</button>
+      </div>
+      <div class="body">
+        <div class="bubble">
+          <div class="label">注意到一件事</div>
+          嗨,我留意到 <strong>act 003「实现客户需求」</strong>已经超期 <strong>1 天</strong>了。
+        </div>
+        <div class="bubble">
+          我看了下上下文：owner 上周五写过一篇 think 提到「等产品 review」,但本周三还没收到反馈。实际进展可能卡在外部依赖。
+          <span class="evidence-inline">📄 003_alice_act_a4b2c1.md →</span>
+        </div>
+        <div class="bubble">
+          <div class="label">建议你做的</div>
+          你可以直接写一篇 <strong>verify</strong> 把这条 act 验收掉；或者主动催 alice 跟产品要 review 结果。
+        </div>
+      </div>
+      <div class="chips">
+        <button class="chip primary">+ 写 verify 验收</button>
+        <button class="chip">提醒 alice 跟进</button>
+        <button class="chip">先延后一周</button>
+        <button class="chip">告诉我更多</button>
+      </div>
+      <div class="hint">回复任意按钮,或打开任一文件继续上下文</div>
+    </aside>
+  </div>
+
+  <!-- C: Bottom Sheet (outside flex layout, position fixed) -->
+  <div class="popup popup-bottom" id="pop-bottom">
+    <div class="grabber"></div>
+    <button class="close" onclick="closePopup()">✕</button>
+    <div class="grid">
+      <div class="icon-block">
+        <div class="icon">⚠</div>
+        <div class="category">验收待办</div>
+      </div>
+      <div class="content">
+        <div>
+          <div class="block-label">触发原因</div>
+          <div class="reason">act 003「实现客户需求」已超期 1 天。owner 上周五写了 think 提到"等产品 review",但本周三还没收到反馈。</div>
+        </div>
+        <div>
+          <div class="block-label">证据文件</div>
+          <span class="evidence-file">📄 003_alice_act_a4b2c1.md →</span>
+        </div>
+        <div>
+          <div class="block-label">建议下一步</div>
+          <div class="suggestion">写一篇 verify 验收 act 003；或主动催产品给出 review 结果。</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary">+ 验收</button>
+        <button class="btn">提醒 alice</button>
+        <button class="btn">延后一周</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STYLE_LABELS = {
+    clean:   'A · 简洁专业',
+    cards:   'B · 卡片分块',
+    bottom:  'C · 底部抽屉',
+    popover: 'D · 卡片气泡',
+    chat:    'E · AI 对话'
+  };
+
+  let currentStyle = 'clean';
+
+  function applyStyle(style) {
+    currentStyle = style;
+    document.getElementById('cur-style').textContent = STYLE_LABELS[style];
+    document.getElementById('style-hint').textContent = '当前风格: ' + STYLE_LABELS[style];
+
+    // Hide all popups
+    document.querySelectorAll('.popup').forEach(p => p.classList.remove('active'));
+    // Show selected one
+    const elId = 'pop-' + style;
+    const el = document.getElementById(elId);
+    if (el) el.classList.add('active');
+
+    // Adjust v2-area max-width based on whether drawer/bottom in use
+    const area = document.getElementById('v2-area');
+    area.classList.remove('no-drawer', 'bottom-drawer');
+    if (style === 'bottom') {
+      area.classList.add('bottom-drawer');
+      area.style.maxWidth = '100%';
+    } else if (style === 'popover') {
+      area.style.maxWidth = '100%';
+    } else {
+      area.style.maxWidth = 'calc(100% - 440px)';
+    }
+
+    // Source pointer/line only show in popover mode (D)
+    const alertCard = document.getElementById('alert-card');
+    if (alertCard) {
+      alertCard.classList.toggle('has-popup', style === 'popover');
+    }
+
+    // Update tab style
+    document.querySelectorAll('.style-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.style === style);
+    });
+  }
+
+  document.querySelectorAll('.style-tab').forEach(t => {
+    t.addEventListener('click', () => applyStyle(t.dataset.style));
+  });
+
+  function openMatter(matterName) {
+    document.getElementById('screen-scheduler').classList.remove('active');
+    document.getElementById('screen-matter').classList.add('active');
+    document.getElementById('home-btn').classList.add('visible');
+    if (matterName) {
+      const el = document.getElementById('v2-matter-name');
+      if (el) el.textContent = matterName;
+      const titleEl = document.querySelector('#screen-matter .v2-title');
+      if (titleEl) titleEl.textContent = matterName;
+    }
+    applyStyle(currentStyle);
+    window.scrollTo(0, 0);
+  }
+
+  function backToScheduler() {
+    document.getElementById('screen-matter').classList.remove('active');
+    document.getElementById('screen-scheduler').classList.add('active');
+    document.getElementById('home-btn').classList.remove('visible');
+    window.scrollTo(0, 0);
+  }
+
+  function closePopup() {
+    // demo only - keep the panel visible for showcase purposes
+    // a real impl would unmount; here we just keep showing
+    alert('实际使用时此按钮会关闭弹出框,demo 中保留方便对比');
+  }
+</script>
 </body>
 </html>
